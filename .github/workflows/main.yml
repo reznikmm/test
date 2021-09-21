@@ -50,15 +50,6 @@ jobs:
         with:
           repository: AdaCore/gnatcoll-bindings
           path: gnatcoll-bindings
-      - name: Get langkit
-        uses: actions/checkout@v2
-        with:
-          repository: AdaCore/langkit
-          path: langkit
-          fetch-depth: 0  # all branches
-      - name: Try to checkout langkit's branch
-        shell: bash
-        run: (cd langkit; git checkout ${{ github.ref }} || true)
       - name: Get GNAT toolchain with alire
         uses: alire-project/setup-alire@v1
         with:
