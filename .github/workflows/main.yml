@@ -2,44 +2,19 @@ on:
   push:
     branches:
       - master
-      - stable
-      - alr_toolchain
 name: Build binaries
 jobs:
   build:
     name: Build and deploy
-
-    # The only purpose of this workflow is to upload builds, so do not run it
-    # in contexts when upload is impossible: only the official repository has
-    # the secrets to upload binaries to Bintray.
-    # if: ${{ github.repository == 'AdaCore/libadalang' }}
-
-    strategy:
-      fail-fast: false
-      matrix: # Build debug and production
-#        debug: ['', 'debug']      # '' if production, 'debug' for debug
-        os: [windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     steps:
-      - run: git config --global core.autocrlf input
-        shell: bash
-      - name: Install iconv and gmp (Windows only)
-        if: ${{ runner.os == 'Windows' }}
-        uses: msys2/setup-msys2@v2
-        with:
-          path-type: inherit
-          update: true
-          install: >-
-            mingw64/mingw-w64-x86_64-libiconv
-            mingw64/mingw-w64-x86_64-gmp
-      - name: Get libadalang
+      - name: Get sources
         uses: actions/checkout@v2
-      - name: Get gprbuild for libgpr
+      - name: Get gprbuild
         uses: actions/checkout@v2
         with:
           repository: AdaCore/gprbuild
           path: gprbuild
-          fetch-depth: 0  # To be able do `git revert`
       - name: Get GNAT toolchain with alire
         uses: alire-project/setup-alire@v1
         with:
