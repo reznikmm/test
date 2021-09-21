@@ -40,16 +40,6 @@ jobs:
           repository: AdaCore/gprbuild
           path: gprbuild
           fetch-depth: 0  # To be able do `git revert`
-      - name: Get gnatcoll core
-        uses: actions/checkout@v2
-        with:
-          repository: AdaCore/gnatcoll-core
-          path: gnatcoll-core
-      - name: Get gnatcoll iconv/gmp
-        uses: actions/checkout@v2
-        with:
-          repository: AdaCore/gnatcoll-bindings
-          path: gnatcoll-bindings
       - name: Get GNAT toolchain with alire
         uses: alire-project/setup-alire@v1
         with:
