@@ -9,10 +9,19 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
+      - name: Install iconv and gmp (Windows only)
+        if: ${{ runner.os == 'Windows' }}
+        uses: msys2/setup-msys2@v2
+        with:
+          path-type: inherit
+          update: true
+          install: >-
+            mingw64/mingw-w64-x86_64-libiconv
+            mingw64/mingw-w64-x86_64-gmp
       - uses: alire-project/setup-alire@v1
         with:
           toolchain: gprbuild^21 gnat_native^11
