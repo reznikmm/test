@@ -1,11 +1,19 @@
-on: [push]
+
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
 jobs:
-  hello:
-    runs-on: ubuntu-latest
-    name: A job to say hello
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-    - name: Hello world action step
-      id: hello
-      uses: reznikmm/fedora-ada-action@v1
-      with:
-        spec: package/aaa.spec
+      - uses: actions/checkout@v2
+      - uses: alire-project/setup-alire@v1
+        with:
+          toolchain: gprbuild^21 gnat_native^11
+          toolchain_dir: ./cached_gnat
