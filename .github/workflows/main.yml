@@ -1,22 +1,16 @@
 on:
   push:
-    branches:
-      - master
+    tags:
+      - 2*.*.*
+permissions: write-all
+
 name: Build binaries
 jobs:
   build:
     name: Build and deploy
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Get sources
         uses: actions/checkout@v2
-      - name: Get gprbuild
-        uses: actions/checkout@v2
-        with:
-          repository: AdaCore/gprbuild
-          path: gprbuild
-      - name: Get GNAT toolchain with alire
-        uses: alire-project/setup-alire@v1
-        with:
-          toolchain: gnat_native^11 gprbuild^21 --disable-assistant
-          toolchain_dir: ./cached_gnat
+      - name: Run release.sh
+        run: .github/workflows/release.sh ${{ secrets.GITHUB_TOKEN }}
