@@ -1,7 +1,5 @@
-on:
-  push:
-    tags:
-      - 2*.*.*
+on: [push, pull_request]
+
 permissions: write-all
 
 name: Build binaries
@@ -12,5 +10,20 @@ jobs:
     steps:
       - name: Get sources
         uses: actions/checkout@v2
-      - name: Run release.sh
-        run: .github/workflows/release.sh ${{ secrets.GITHUB_TOKEN }}
+      - name: Get GNAT toolchain with alire
+        uses: alire-project/setup-alire@v1
+        with:
+          toolchain: gnat_native gprbuild
+      - name: Build sources
+        run: |
+          set -e -x
+          alr build
+          ulimit -c unlimited
+          mkdir core-dump
+          echo "$PWD/core-dump/corefile-%e-%p-%t" | sudo tee /proc/sys/kernel/core_pattern
+          ./bin/test | true
+
+      - uses: actions/upload-artifact@master
+        with:
+          name: crashes
+          path: ./core-dump/*
