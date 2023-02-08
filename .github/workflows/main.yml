@@ -11,7 +11,7 @@ jobs:
       - name: Get sources
         uses: actions/checkout@v2
       - name: Get GNAT toolchain with alire
-        uses: alire-project/setup-alire@v1
+        uses: alire-project/setup-alire@v2
         with:
           toolchain: gnat_native gprbuild
       - name: Build sources
