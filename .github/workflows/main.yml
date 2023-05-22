@@ -6,10 +6,17 @@ name: Build binaries
 jobs:
   build:
     name: Build and deploy
-    runs-on: ubuntu-latest
+    runs-on: macos-11
     steps:
       - name: Get sources
         uses: actions/checkout@v2
+      - name: Find objcopy
+        run: |
+           brew install binutils
+           export PATH="/usr/local/opt/binutils/bin:$PATH"
+           objcopy --help
+           type objcopy
+           which objcopy
       - name: Get GNAT toolchain with alire
         uses: alire-project/setup-alire@v2
         with:
