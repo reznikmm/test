@@ -6,31 +6,33 @@ name: Build binaries
 jobs:
   build:
     name: Build and deploy
-    runs-on: macos-11
+    runs-on: windows-latest
     steps:
+      - run: |
+          git config --global core.autocrlf input
+          mkdir -p ~/.config/alire
+          echo '[msys2]' >> ~/.config/alire/config.toml
+          echo 'install_dir = "C:\\msys64"' >> ~/.config/alire/config.toml
+        shell: bash
+
+      - run: |
+           echo $PATH
+           pacman --noconfirm -S mingw64/mingw-w64-x86_64-libiconv mingw64/mingw-w64-x86_64-gmp
+        shell: c:\msys64\usr\bin\bash.exe --noprofile --norc -e -o pipefail {0}
+
       - name: Get sources
         uses: actions/checkout@v2
-      - name: Find objcopy
-        run: |
-           brew install binutils
-           export PATH="/usr/local/opt/binutils/bin:$PATH"
-           objcopy --help
-           type objcopy
-           which objcopy
+
       - name: Get GNAT toolchain with alire
         uses: alire-project/setup-alire@v2
         with:
           toolchain: gnat_native gprbuild
+
       - name: Build sources
+        shell: bash
         run: |
           set -e -x
-          alr build
-          ulimit -c unlimited
-          mkdir core-dump
-          echo "$PWD/core-dump/corefile-%e-%p-%t" | sudo tee /proc/sys/kernel/core_pattern
-          ./bin/test | true
-
-      - uses: actions/upload-artifact@master
-        with:
-          name: crashes
-          path: ./core-dump/*
+          echo $PATH
+          ls -la
+          rm -rfv alire.toml
+          alr --non-interactive get xmlada
