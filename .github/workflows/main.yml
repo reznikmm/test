@@ -6,29 +6,10 @@ name: Build binaries
 jobs:
   build:
     name: Build and deploy
-    runs-on: windows-latest
+    runs-on: macos-13-xlarge
     steps:
       - run: |
-          git config --global core.autocrlf input
-          mkdir -p ~/.config/alire
-          echo '[msys2]' >> ~/.config/alire/config.toml
-          echo 'install_dir = "C:\\msys64"' >> ~/.config/alire/config.toml
-
-        shell: bash
-
-      - name: Get sources
-        uses: actions/checkout@v2
-
-      - name: Get GNAT toolchain with alire
-        uses: alire-project/setup-alire@v2
-        with:
-          toolchain: gnat_native gprbuild
-
-      - name: Build sources
-        shell: bash
-        run: |
-          set -e -x
-          echo $PATH
-          ls -la
-          rm -rfv alire.toml
-          alr --non-interactive get xmlada
+          uname -a
+          which gcc
+          sysctl -n machdep.cpu.brand_string
+          gcc -v
