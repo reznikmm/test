@@ -30,6 +30,17 @@ jobs:
         with:
           toolchain: gnat_native gprbuild
 
+      - name: Set Windows PATH
+        shell: cmd
+        run: |
+          alr get gnat_native --dirname > %temp%\gnatdir.txt
+          set /P gnatdir=<%temp%\gnatdir.txt
+          echo %USERPROFILE%.config\alire\cache\dependencies\%gnatdir%\bin >> %GITHUB_PATH%
+
+          alr get gprbuild --dirname > %temp%\gnatdir.txt
+          set /P gnatdir=<%temp%\gnatdir.txt
+          echo %USERPROFILE%.config\alire\cache\dependencies\%gnatdir%\bin >> %GITHUB_PATH%
+
       - name: Build sources
         shell: bash
         run: |
