@@ -18,7 +18,7 @@ jobs:
       - run: |
            echo $PATH
            pacman --noconfirm -S mingw64/mingw-w64-x86_64-libiconv mingw64/mingw-w64-x86_64-gmp
-        shell: c:\msys64\usr\bin\bash.exe --noprofile --norc -e -o pipefail {0}
+        shell: c:\msys64\usr\bin\bash.exe -e -o pipefail {0}
 
       - name: Get sources
         uses: actions/checkout@v2
