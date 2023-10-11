@@ -6,7 +6,7 @@ name: Build binaries
 jobs:
   build:
     name: Build and deploy
-    runs-on: macos-13-xlarge
+    runs-on: macos-latest
     steps:
       - run: |
           uname -a
