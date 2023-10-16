@@ -2,9 +2,6 @@ on: [push, pull_request]
 
 permissions: write-all
 
-env:
-   USERPROFILE: D:\a
-
 name: Build binaries
 jobs:
   build:
@@ -12,43 +9,13 @@ jobs:
     runs-on: windows-latest
     steps:
       - run: |
-          git config --global core.autocrlf input
-          mkdir -p ~/.config/alire
-          echo '[msys2]' >> ~/.config/alire/config.toml
-          echo 'install_dir = "C:\\msys64"' >> ~/.config/alire/config.toml
-        shell: bash
-
-      - run: |
-           echo $PATH
-           pacman --noconfirm -S mingw64/mingw-w64-x86_64-libiconv mingw64/mingw-w64-x86_64-gmp
-        shell: c:\msys64\usr\bin\bash.exe -l -e -o pipefail {0}
-        env:
-          MSYSTEM: MINGW64
-
-      - name: Get sources
-        uses: actions/checkout@v2
-
-      - name: Get GNAT toolchain with alire
-        uses: alire-project/setup-alire@v2
-        with:
-          toolchain: gnat_native gprbuild
-
-      - name: Set Windows PATH
-        shell: cmd
-        run: |
-          alr get gnat_native --dirname > %temp%\gnatdir.txt
-          set /P gnatdir=<%temp%\gnatdir.txt
-          echo %USERPROFILE%.config\alire\cache\dependencies\%gnatdir%\bin >> %GITHUB_PATH%
-
-          alr get gprbuild --dirname > %temp%\gnatdir.txt
-          set /P gnatdir=<%temp%\gnatdir.txt
-          echo %USERPROFILE%.config\alire\cache\dependencies\%gnatdir%\bin >> %GITHUB_PATH%
-
-      - name: Build sources
-        shell: bash
-        run: |
-          set -e -x
-          echo $PATH
+          curl -L 'https://www.dropbox.com/scl/fi/x9wzg3avorl9h28ktml6r/lal.tar?rlkey=fpwuko9ct8ize6g10spxaw44o&dl=1' | tar xvf -
           ls -la
-          rm -rfv alire.toml
-          alr --non-interactive get xmlada
+          umask
+        shell: bash
+
+      - name: Start SSH session
+        uses: luchihoratiu/debug-via-ssh@main
+        with:
+          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+          SSH_PASS: ${{ secrets.SSH_PASS }}
