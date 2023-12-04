@@ -12,23 +12,36 @@ jobs:
         uses: actions/checkout@v2
       - name: Find objcopy
         run: |
-           brew install binutils
-           export PATH="/usr/local/opt/binutils/bin:$PATH"
-           objcopy --help
-           type objcopy
-           which objcopy
-      - name: Get GNAT toolchain with alire
-        uses: alire-project/setup-alire@v2
-        with:
-          toolchain: gnat_native gprbuild
-      - name: Build sources
-        run: |
-          set -e -x
-          alr build
-          ulimit -c unlimited
-          mkdir core-dump
-          echo "$PWD/core-dump/corefile-%e-%p-%t" | sudo tee /proc/sys/kernel/core_pattern
-          ./bin/test | true
+          brew install texinfo bison m4 flex
+          curl -L https://github.com/alire-project/GNAT-FSF-builds/releases/download/gnat-13.2.0-1/gnat-x86_64-darwin-13.2.0-1.tar.gz | tar xzf -
+          git clone --depth=1 https://github.com/iains/gcc-13-branch gcc-13.2.0
+          export PATH=$PWD/gnat-x86_64-darwin-13.2.0-1/bin:$PATH
+          cd gcc-13.2.0
+          ./contrib/download_prerequisites
+          mkdir ../build
+          cd ../build
+          CC="x86_64-apple-darwin21.6.0-gcc" CXX="x86_64-apple-darwin21.6.0-g++" \
+          ../gcc-13.2.0/configure \
+            --prefix=/usr/local \
+            --enable-languages=c,ada,c++ \
+            --enable-libstdcxx --enable-libstdcxx-threads --enable-libada --disable-nls \
+            --without-libiconv-prefix --disable-libstdcxx-pch \
+            --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk \
+            --without-target-system-zlib \
+            --with-as=/usr/bin/as --with-ar=/usr/bin/ar --with-ld=/usr/bin/ld \
+            --with-dsymutil=/usr/bin/dsymutil --with-ranlib=/usr/bin/ranlib \
+            --disable-multilib --disable-libcilkrts --without-build-config \
+            --with-specs='%{!sysroot=*:--sysroot=%:if-exists-else(/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk)}'\
+            --target=aarch64-apple-darwin21.6.0 --build=x86_64-apple-darwin21.6.0 \
+            AS_FOR_TARGET=/usr/bin/as LD_FOR_TARGET=/usr/bin/ld \
+            NM_FOR_TARGET=/usr/bin/nm RANLIB_FOR_TARGET=/usr/bin/ranlib \
+            AR_FOR_TARGET=/usr/bin/ar LIPO_FOR_TARGET=/usr/bin/lipo \
+            DSYMUTIL_FOR_TARGET=/usr/bin/dsymutil \
+            STRIP_FOR_TARGET=/usr/bin/strip \
+           || true
+
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
 
       - uses: actions/upload-artifact@master
         with:
