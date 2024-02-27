@@ -1,49 +1,29 @@
 on: [push, pull_request]
 
-permissions: write-all
-
 name: Build binaries
 jobs:
   build:
-    name: Build and deploy
-    runs-on: macos-11
+    name: Build
+    runs-on: ubuntu-latest
     steps:
       - name: Get sources
         uses: actions/checkout@v2
-      - name: Find objcopy
-        run: |
-          brew install texinfo bison m4 flex
-          curl -L https://github.com/alire-project/GNAT-FSF-builds/releases/download/gnat-13.2.0-1/gnat-x86_64-darwin-13.2.0-1.tar.gz | tar xzf -
-          git clone --depth=1 https://github.com/iains/gcc-13-branch gcc-13.2.0
-          export PATH=$PWD/gnat-x86_64-darwin-13.2.0-1/bin:$PATH
-          cd gcc-13.2.0
-          ./contrib/download_prerequisites
-          mkdir ../build
-          cd ../build
-          CC="x86_64-apple-darwin21.6.0-gcc" CXX="x86_64-apple-darwin21.6.0-g++" \
-          ../gcc-13.2.0/configure \
-            --prefix=/usr/local \
-            --enable-languages=c,ada,c++ \
-            --enable-libstdcxx --enable-libstdcxx-threads --enable-libada --disable-nls \
-            --without-libiconv-prefix --disable-libstdcxx-pch \
-            --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX13.sdk \
-            --without-target-system-zlib \
-            --with-as=/usr/bin/as --with-ar=/usr/bin/ar --with-ld=/usr/bin/ld \
-            --with-dsymutil=/usr/bin/dsymutil --with-ranlib=/usr/bin/ranlib \
-            --disable-multilib --disable-libcilkrts --without-build-config \
-            --with-specs='%{!sysroot=*:--sysroot=%:if-exists-else(/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk)}'\
-            --target=aarch64-apple-darwin21.6.0 --build=x86_64-apple-darwin21.6.0 \
-            AS_FOR_TARGET=/usr/bin/as LD_FOR_TARGET=/usr/bin/ld \
-            NM_FOR_TARGET=/usr/bin/nm RANLIB_FOR_TARGET=/usr/bin/ranlib \
-            AR_FOR_TARGET=/usr/bin/ar LIPO_FOR_TARGET=/usr/bin/lipo \
-            DSYMUTIL_FOR_TARGET=/usr/bin/dsymutil \
-            STRIP_FOR_TARGET=/usr/bin/strip \
-           || true
-
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-
-      - uses: actions/upload-artifact@master
+      - name: Get GNATdoc
+        uses: reznikmm/setup-gnatdoc@main
+      - name: Install Alire
+        uses: alire-project/setup-alire@v2
         with:
-          name: crashes
-          path: ./core-dump/*
+          version: 2.0.0-beta1
+      - name: Build binari and doc
+        run: |
+          alr build
+          gnatdoc -P test.gpr --output-dir output --backend html
+
+      - name: Archive output
+        uses: actions/upload-artifact@v4
+        with:
+          name: output
+          path: ./output
+
+#      - name: Setup upterm session
+#        uses: lhotari/action-upterm@v1
