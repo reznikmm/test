@@ -4,26 +4,10 @@ name: Build binaries
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     steps:
       - name: Get sources
         uses: actions/checkout@v2
-      - name: Get GNATdoc
-        uses: reznikmm/setup-gnatdoc@main
-      - name: Install Alire
-        uses: alire-project/setup-alire@v2
-        with:
-          version: 2.0.0-beta1
       - name: Build binari and doc
         run: |
-          alr build
-          gnatdoc -P test.gpr --output-dir output --backend html
-
-      - name: Archive output
-        uses: actions/upload-artifact@v4
-        with:
-          name: output
-          path: ./output
-
-#      - name: Setup upterm session
-#        uses: lhotari/action-upterm@v1
+          uname -a
