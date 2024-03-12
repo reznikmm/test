@@ -11,3 +11,6 @@ jobs:
       - name: Build binari and doc
         run: |
           uname -a
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+
