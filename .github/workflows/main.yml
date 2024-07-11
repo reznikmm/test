@@ -8,8 +8,18 @@ jobs:
     steps:
       - name: Get sources
         uses: actions/checkout@v2
+#      - uses: alire-project/setup-alire@v3
+      - uses: reznikmm/setup-alire@v4
+        with:
+          version: "nightly"
 #      - name: Get GNATdoc
 #        uses: reznikmm/setup-gnatdoc@main
+      - name: Install gnat
+        run: |
+          alr version
+          alr toolchain --select gnat_native^14
+          alr toolchain
+          alr exec gcc -- -v
       - name: Install gprbuild
         run: |
           curl -L https://github.com/simonjwright/alire-index.mac/releases/download/toolchain-13.2.1/gprbuild-macos-aarch64-23.0.2.tar.gz | tar xzvf -
