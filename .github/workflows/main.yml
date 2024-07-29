@@ -9,32 +9,24 @@ jobs:
       - name: Get sources
         uses: actions/checkout@v2
 #      - uses: alire-project/setup-alire@v3
-      - uses: reznikmm/setup-alire@v4
-        with:
-          version: "nightly"
+#      - uses: reznikmm/setup-alire@v4
+#        with:
+#          version: "nightly"
 #      - name: Get GNATdoc
 #        uses: reznikmm/setup-gnatdoc@main
-      - name: Install gnat
+      - name: Install Alire
         run: |
-          alr version
-          alr toolchain --select gnat_native^14
-          alr toolchain
-          alr exec gcc -- -v
+          curl -L -O https://github.com/alire-project/alire/releases/download/nightly/alr-nightly-bin-aarch64-macos.zip
+          unzip alr-nightly-bin-aarch64-macos.zip
+          bin/alr index --reset-community
+          bin/alr toolchain --select gnat_native^14
+          echo $PWD/bin >> $GITHUB_PATH
       - name: Install gprbuild
         run: |
-          curl -L https://github.com/simonjwright/alire-index.mac/releases/download/toolchain-13.2.1/gprbuild-macos-aarch64-23.0.2.tar.gz | tar xzvf -
-          echo $PWD/gprbuild/bin >> $GITHUB_PATH
-      - name: Install Alire
-#        uses: alire-project/setup-alire@v3
-        run: |
-          curl -L -O https://github.com/simonjwright/alire-index.mac/releases/download/alr-2.0.1-bin-aarch64-macos/alr-2.0.1-bin-aarch64-macos.zip
-          unzip alr-2.0.1-bin-aarch64-macos.zip
-          echo $PWD/bin >> $GITHUB_PATH
+          curl -L https://github.com/alire-project/GNAT-FSF-builds/releases/download/gprbuild-24.0.0-1/gprbuild-aarch64-darwin-24.0.0-1.tar.gz | tar xzvf -
+          echo $PWD/gprbuild-aarch64-darwin-24.0.0-1/bin >> $GITHUB_PATH
       - name: Build binari and doc
         run: |
-          #alr index --reset-community
-          alr index --add git+https://github.com/reznikmm/alire-index.git#topic/gcc-14-mac --name mac
-          alr toolchain --select gnat_native^14
           alr toolchain
           alr exec gcc -- -v
           alr build
