@@ -8,29 +8,13 @@ jobs:
     steps:
       - name: Get sources
         uses: actions/checkout@v2
-#      - uses: alire-project/setup-alire@v3
-#      - uses: reznikmm/setup-alire@v4
-#        with:
-#          version: "nightly"
-#      - name: Get GNATdoc
-#        uses: reznikmm/setup-gnatdoc@main
-      - name: Install Alire
-        run: |
-          curl -L -O https://github.com/alire-project/alire/releases/download/nightly/alr-nightly-bin-aarch64-macos.zip
-          unzip alr-nightly-bin-aarch64-macos.zip
-          bin/alr index --reset-community
-          bin/alr toolchain --select gnat_native^14
-          echo $PWD/bin >> $GITHUB_PATH
-      - name: Install gprbuild
-        run: |
-          curl -L https://github.com/alire-project/GNAT-FSF-builds/releases/download/gprbuild-24.0.0-1/gprbuild-aarch64-darwin-24.0.0-1.tar.gz | tar xzvf -
-          echo $PWD/gprbuild-aarch64-darwin-24.0.0-1/bin >> $GITHUB_PATH
+      - uses: alire-project/setup-alire@v3
       - name: Build binari and doc
         run: |
           alr toolchain
-          alr exec gcc -- -v
-          alr build
-          # gnatdoc -P test.gpr --output-dir output --backend html
+          rm -f -v alire.toml
+          LIBRARY_TYPE=relocatable alr get --build libhello
+          ls -lR
 
       - name: Archive output
         uses: actions/upload-artifact@v4
