@@ -1,20 +1,13 @@
-on: [push, pull_request]
+on: push
 
-name: Build binaries
+name: Build
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Get sources
         uses: actions/checkout@v2
-
+      - uses: alire-project/setup-alire@v5
       - name: Check locale
-        run: |
-          sudo sed -i -e '/uk_UA.UTF-8/s/# //' /etc/locale.gen
-          sudo locale-gen
-
-          locale -a
-
-          #      - name: Setup upterm session
-          #        uses: lhotari/action-upterm@v1
+        run: alr get --build hp41cx_tools
