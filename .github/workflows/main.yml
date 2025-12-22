@@ -4,17 +4,27 @@ name: Build binaries
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: windows-11-arm
     steps:
       - name: Get sources
         uses: actions/checkout@v2
 
-      - name: Check locale
-        run: |
-          sudo sed -i -e '/uk_UA.UTF-8/s/# //' /etc/locale.gen
-          sudo locale-gen
+      - uses: msys2/setup-msys2@v2
 
-          locale -a
+      - name: Run MSYS2
+        shell: msys2 {0}
+        run: |-
+          pacman -S --noconfirm patch
+          patch /etc/pacman.conf 0002-add-woarm64-native-repository.patch
+          (cd /; patch -p1) < 0001-mingwarm64.patch
+          cat /etc/pacman.conf
+          pacman -Sy
+          pacman -S --noconfirm mingw-w64-aarch64-toolchain
+          pacman -Ql mingw-w64-aarch64-gcc
+          /mingwarm64/bin/aarch64-w64-mingw32-gcc -v
+          echo MSYSTEM=MINGWARM64 >> $GITHUB_ENV
 
-          #      - name: Setup upterm session
-          #        uses: lhotari/action-upterm@v1
+      - name: Run MSYS2
+        shell: msys2 {0}
+        run: |-
+          aarch64-w64-mingw32-gcc -v
