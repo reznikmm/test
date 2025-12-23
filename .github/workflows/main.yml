@@ -4,17 +4,29 @@ name: Build binaries
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: windows-11-arm
+
+    defaults:
+      run:
+        shell: msys2 {0}
     steps:
       - name: Get sources
         uses: actions/checkout@v2
-
-      - name: Check locale
-        run: |
-          sudo sed -i -e '/uk_UA.UTF-8/s/# //' /etc/locale.gen
-          sudo locale-gen
-
-          locale -a
-
-          #      - name: Setup upterm session
-          #        uses: lhotari/action-upterm@v1
+      - uses: msys2/setup-msys2@v2
+        timeout-minutes: 10
+        with:
+          msystem: CLANGARM64
+          #msystem: MSYS
+          #path-type: minimal
+          update: true
+          #cache: true
+#      - uses: alire-project/setup-alire@v5
+#        with:
+#          msys2: false
+      - run: |
+          uname -a
+          python -c "import platform; print(platform.machine())"
+          mount
+          mount -o binary,noacl,posix=0 C:/Users /Users
+          mount
+          /Users/runneradmin/AppData/Local/alire/cache/toolchains/gnat_native_15.2.1_346e2e00/bin/gcc -v
